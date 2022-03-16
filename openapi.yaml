@@ -1,0 +1,520 @@
+openapi: 3.0.1
+info:
+  title: API HAL
+  description: Manual de Integración de la API HAL
+  version: 1.0.0
+servers:
+- url: https://57qbqd212c.execute-api.eu-west-1.amazonaws.com/TEST
+tags:
+- name: Obtener atributos
+  description: ""
+paths:
+  /obtener_atributos:
+    post:
+      tags:
+      - Obtener atributos
+      summary: Obtener atributo o colección de atributos específicos
+      operationId: Retrieve attributes
+      requestBody:
+        description: |-
+          Cuerpo de la petición en la que se incluye información relacionada con el identificador solicitado,  y el atributo o colección de atributos que se desean recuperar.
+
+           Se requiere la inclusión en la petición de al menos uno de los siguientes parámetros: 'user_token' o 'app_key'.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/peticion_api_obtener_atributos'
+        required: true
+      responses:
+        200:
+          description: Petición exitosa, se recupera toda la información deseada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/respuesta_api_obtener_atributos_200'
+        213:
+          description: Petición exitosa, pero faltan permisos en DSAs, por lo que no se puede recuperar toda la información.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/respuesta_api_obtener_atributos_213'
+        401:
+          description: Petición no autorizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/respuesta_unauthorized'
+        500:
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/respuesta_error'
+  /listar_atributos:
+    post:
+      tags:
+      - Listar atributos
+      summary: Listar atributos
+      operationId: List attributes
+      requestBody:
+        description: |-
+          Cuerpo de la petición en la que se indica la entidad de la cual se desean listar los atributos que lo componen.
+
+           Se requiere la inclusión en la petición de al menos uno de los siguientes parámetros: 'user_token' o 'app_key'.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/peticion_api_listar_atributos'
+        required: true
+      responses:
+        200:
+          description: Petición exitosa, se recupera la lista de los atributos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/respuesta_api_listar_atributos'
+        401:
+          description: Petición no autorizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/respuesta_unauthorized'
+        500:
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/respuesta_error'
+
+  /obtener_relaciones:
+    post:
+      tags:
+      - Obtener relaciones
+      summary: Obtener relaciones de información relacionadas con la entidad origen
+      operationId: Retrieve relationships
+      requestBody:
+        description: |-
+          Cuerpo de la petición en la que se incluye la información relacionada con la entidad origen y el conjunto de atributos de las entidades relacionadas.
+           
+            Se requiere la inclusión en la petición de al menos uno de los siguientes parámetros: 'user_token' o 'app_key'.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/peticion_api_obtener_relaciones'
+        required: true
+      responses:
+        200:
+          description: Petición exitosa, se recupera la información solicitada.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/respuesta_api_obtener_relaciones'
+                
+        401:
+          description: Petición no autorizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/respuesta_unauthorized'
+        500:
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/respuesta_error'
+                
+  /obtener_entidad:
+    post:
+        tags:
+        - Obtener entidades
+        summary: Obtener la información de una entidad concreta
+        operationId: Retrieve entity
+        requestBody:
+          description: |-
+            Cuerpo de la peticion en la que se incluye la información relacionada con la entidad indicada.
+            
+            Se requiere la inclusión en la petición de al menos uno de los dos siguientes parámetros: 'user_token' o 'app_key'.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/peticion_api_obtener_entidades'
+          required: true
+        responses:
+          200:
+            description: Petición exitosa, se recupera la información solicitada.
+            content:
+              application/json:
+                schema:
+                  oneOf:
+                    - $ref: '#/components/schemas/respuesta_api_obtener_entidad'
+          401:
+            description: Petición no autorizada.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/respuesta_unauthorized'
+          500:
+            description: Error interno del servidor.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/respuesta_error'
+                   
+        #x-codegen-request-body-name: body
+components:
+  schemas:
+    peticion_api_obtener_atributos:
+      required:
+      - condiciones
+      - procedimiento
+      - atributos
+      - tipo_identificador
+      - identificador
+      type: object
+      properties:
+        user_token:
+          type: string
+          example: daidbID9123AAS
+        app_key:
+          type: string
+          example: 0891hjaVFFC
+        tipo_identificador:
+          type: string
+          enum:
+          - ciudadano.nif
+          - ciudadano.ar
+          - expediente
+        identificador:
+          type: string
+          example: 12345678T
+        procedimiento:
+          type: string
+          example: 695 
+        atributos:
+          type: array
+          example:
+          - ciudadano.nombre
+          - ciudadano.sexo
+          - ciudadano.iass-discapacidad.grado_discapacidad
+          xml:
+            name: termino
+            wrapped: true
+          items:
+            type: string
+        condiciones:
+          type: array
+          example: []
+          xml:
+            name: condicion
+            wrapped: true
+          items:
+            type: string
+      xml:
+        name: peticion_api_exterior
+    peticion_api_listar_atributos:
+      required:
+      - entidad
+      type: object
+      properties:
+        user_token:
+          type: string
+          example: daidbID9123AAS
+        app_key:
+          type: string
+          example: 0891hjaVFFC
+        entidad:
+          type: string
+          enum:
+            - "ciudadano.iass"
+            - "ciudadano.iass-discapacidad"
+            - "ciudadano.iass-dependencia"
+          example: "ciudadano.iass"
+      xml:
+        name: peticion_api_exterior
+    
+    peticion_api_obtener_entidades:
+      required:
+        - tipo_identificador
+      type: object
+      properties:
+        user_token:
+          type: string
+          example: daidbID9123AAS
+        app_key:
+          type: string
+          example: 0891hjaVFFC
+        tipo_identificador:
+          type: string
+          description: metodo para identificar a la persona de la que se desea obtener
+            información
+          enum:
+          - expediente.csv
+          - ciudadano.nif
+          - documento.csv
+        identificador:
+          type: string
+          example: CSV12345678XFILES
+        procedimiento:
+          type: string
+          example: 695
+        filtros:
+          type: array
+          items:
+            type: string
+            example: ["expediente.aplicacion_origen","expediente.grupo_fase","expediente.estado","expediente.numero_expediente","expediente.representante.nif","expediente.interesado.nif","expediente.fecha_ultima_actualizacion"]
+      xml:
+        name: peticion_api_exterior
+    
+    peticion_api_obtener_relaciones:
+      required:
+      - identificador
+      - procedimiento
+      - tipo_identificador
+      type: object
+      properties:
+        user_token:
+          type: string
+          example: daidbID9123AAS
+        app_key:
+          type: string
+          example: 0891hjaVFFC
+        tipo_identificador:
+          type: string
+          description: metodo para identificar a la persona de la que se desea obtener
+            información
+          enum:
+          - ciudadano.nif
+          - expediente
+          - documento
+        identificador:
+          type: string
+          example: 12345678T
+        procedimiento:
+          type: string
+          example: 695 
+        atributos_entidades_relacionadas:
+          type: array
+          items:
+            type: string
+            example: ["expediente.estado","expediente.numero_expediente"]
+      xml:
+        name: peticion_api_exterior
+    respuesta_unauthorized:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 401
+        headers:
+          type: array
+          example:
+          - Content-Type: application/json
+          xml:
+            name: header
+            wrapped: true
+          items:
+            type: string
+        body:
+          type: object
+          properties: 
+            mensaje: 
+              type: string
+              example: 'Acceso no autorizado.'
+          
+    respuesta_error:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 500
+        headers:
+          type: array
+          example:
+          - Content-Type: application/json
+          xml:
+            name: header
+            wrapped: true
+          items:
+            type: string
+        body:
+          type: object
+          properties:  
+            mensaje: 
+              type: string
+              example: 'Error - {Mensaje personalizado de error}'
+    respuesta_api_obtener_atributos_200:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 200
+        headers:
+          type: array
+          example:
+          - Content-Type: application/json
+          xml:
+            name: header
+            wrapped: true
+          items:
+            type: string
+        body:
+          type: object
+          properties: 
+            mensaje: 
+              type: string
+              example: "OK"
+            atributos: 
+              type: array
+              items:
+                type: object
+                properties:
+                  ciudadano.nombre:
+                    type: string
+                    example: "MARIA ASUNCION"
+                  ciudadano.sexo:
+                    type: string
+                    example: "M"
+                  ciudadano.iass-discapacidad.grado_discapacidad:
+                    type: string
+                    example: "95.0"
+    respuesta_api_obtener_atributos_213:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 213
+        headers:
+          type: array
+          example:
+          - Content-Type: application/json
+          xml:
+            name: header
+            wrapped: true
+          items:
+            type: string
+        body:
+          type: object
+          properties:
+            mensaje: 
+              type: string
+              example: "Solo tiene permisos para leer los términos: ciudadano.nombre, ciudadano.iass-discapacidad.grado_discapacidad."
+            atributos: 
+              type: array
+              items:
+                type: string
+              example: ["ciudadano.nombre": "MARIA ASUNCION", "ciudadano.iass-discapacidad.grado_discapacidad":"95.0"]
+        
+    respuesta_api_listar_atributos:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 200
+        headers:
+          type: array
+          example:
+          - Content-Type: application/json
+          xml:
+            name: header
+            wrapped: true
+          items:
+            type: string
+        body:
+          type: array
+          items:
+            type: string
+          example: [ciudadano.iass-discapacidad: ["ciudadano.iass-discapacidad.estado_tramitacion","ciudadano.iass-discapacidad.numero_expediente","ciudadano.iass-discapacidad.grado_discapacidad","ciudadano.iass-discapacidad.dificultad_movilidad","ciudadano.iass-discapacidad.asistencia_tercera_persona","ciudadano.iass-discapacidad.fecha_cita_revision","ciudadano.iass-discapacidad.porcentaje_valoracion_fisica","ciudadano.iass-discapacidad.porcentaje_valoracion_psiquica","ciudadano.iass-discapacidad.porcentaje_grado_limitacion_actividad","ciudadano.iass-discapacidad.porcentaje_factores_sociales","ciudadano.iass-discapacidad.fecha_efectos","ciudadano.iass-discapacidad.direccion_notificaciones","ciudadano.iass-discapacidad.telefono_contacto","ciudadano.iass-discapacidad.correo_electronico_contacto"],ciudadano.iass-dependencia: ["ciudadano.iass-dependencia.estado_tramitacion","ciudadano.iass-dependencia.numero_expediente","ciudadano.iass-dependencia.grado_dependencia","ciudadano.iass-dependencia.servicios_y_prestaciones","ciudadano.iass-dependencia.fecha_efectos_pia","ciudadano.iass-dependencia.direccion_principal","ciudadano.iass-dependencia.direccion_notificaciones","ciudadano.iass-dependencia.telefono_contacto","ciudadano.iass-dependencia.correo_electronico_contacto"]]
+          
+    respuesta_api_obtener_relaciones:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 200
+        headers:
+          type: array
+          example:
+          - Content-Type: application/json
+          xml:
+            name: header
+            wrapped: true
+          items:
+            type: string
+        body:
+          type: object
+          properties:
+            resultados:
+              type: array
+              items:
+                type: object
+                properties:
+                  expediente.estado:
+                    type: string
+                  expediente.numero_expediente:
+                    type: string
+              example: [{expediente.estado : "Abierto", expediente.numero_expediente : "32"},{expediente.estado : "Cerrado", expediente.numero_expediente : "31"}]
+            
+    
+    respuesta_api_obtener_entidad:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+          example: 200
+        headers:
+          type: array
+          example:
+          - Content-Type: application/json
+          xml:
+            name: header
+            wrapped: true
+          items:
+            type: string
+        body:
+          type: object
+          properties:
+            resultados:
+              type: array
+              items:
+                type: object
+                properties:
+                  expediente.aplicacion_origen:
+                    type: string
+                    example: "iass"
+                  expediente.grupo_fase:
+                    type: string
+                    example: "Inicio"
+                    enum:
+                      - "Inicio"
+                      - "Instrucción"
+                      - "Finalización"
+                      - "Ejecución"
+                  expediente.estado:
+                    type: string
+                    example: "Abierto"
+                  expediente.numero_expediente:
+                    type: string
+                    example: "33"
+                  expediente.representante.nif:
+                    type: array
+                    example: ["62344444T","38533422G"]
+                    items:
+                      type: string
+                  expediente.interesado.nif:
+                    type: array
+                    example: ["12344444T","34553555G"]
+                    items:
+                      type: string
+                  expediente.fecha_ultima_actualizacion:
+                    type: string
+                    format: date
+                    example: "22-03-2022"
+
